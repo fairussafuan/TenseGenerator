@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tense Generator</title>
+
+<!-- PDF Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
+    background: #f5f5f7;
+    color: #1c1c1e;
+}
+
+h1 {
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 24px;
+}
+
+.input-box {
+    max-width: 760px;
+    margin: auto;
+    background: white;
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    display: flex;
+    gap: 10px;
+}
+
+.input-box input {
+    border: none;
+    outline: none;
+    font-size: 18px;
+    width: 100%;
+}
+
+.input-box button {
+    background: black;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.result {
+    max-width: 760px;
+    margin: 30px auto;
+    background: white;
+    padding: 28px;
+    border-radius: 22px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+    text-align: center;
+}
+
+.tense-table {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.column {
+    padding: 16px 20px;
+    border-radius: 18px;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    min-width: 150px;
+}
+
+.label {
+    font-size: 13px;
+    opacity: 0.85;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.present { background: linear-gradient(135deg, #00b894, #00cec9); }
+.past { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+.future { background: linear-gradient(135deg, #ff7675, #fd79a8); }
+.participle { background: linear-gradient(135deg, #0984e3, #74b9ff); }
+
+.badge {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.irregular { background: #ffeaa7; color: #2d3436; }
+.regular { background: #dfe6e9; color: #2d3436; }
+
+.actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.actions button {
+    background: #000;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+audio {
+    margin-top: 12px;
+}
+</style>
+</head>
+<body>
+
+<h1>Tense Generator</h1>
+
+<div class="input-box">
+    <input id="verbInput" placeholder="Enter a verb (e.g. go, eat, play)" />
+    <button onclick="generate()">Generate</button>
+</div>
+
+<div id="output"></div>
+
+<script>
+// 🔵 IRREGULAR VERBS
+const irregular = {
+run:{past:"ran",present:"run",future:"will run",pp:"run"},
+go:{past:"went",present:"go",future:"will go",pp:"gone"},
+eat:{past:"ate",present:"eat",future:"will eat",pp:"eaten"},
+see:{past:"saw",present:"see",future:"will see",pp:"seen"},
+take:{past:"took",present:"take",future:"will take",pp:"taken"},
+come:{past:"came",present:"come",future:"will come",pp:"come"},
+make:{past:"made",present:"make",future:"will make",pp:"made"},
+have:{past:"had",present:"have",future:"will have",pp:"had"},
+be:{past:"was / were",present:"am / is / are",future:"will be",pp:"been"},
+write:{past:"wrote",present:"write",future:"will write",pp:"written"},
+sing:{past:"sang",present:"sing",future:"will sing",pp:"sung"},
+drink:{past:"drank",present:"drink",future:"will drink",pp:"drunk"},
+bite:{past:"bit",present:"bite",future:"will bite",pp:"bitten"},
+blow:{past:"blew",present:"blow",future:"will blow",pp:"blown"},
+build:{past:"built",present:"build",future:"will build",pp:"built"},
+burn:{past:"burnt / burned",present:"burn",future:"will burn",pp:"burnt / burned"},
+do:{past:"did",present:"do",future:"will do",pp:"done"},
+draw:{past:"drew",present:"draw",future:"will draw",pp:"drawn"},
+drive:{past:"drove",present:"drive",future:"will drive",pp:"driven"},
+fly:{past:"flew",present:"fly",future:"will fly",pp:"flown"},
+hide:{past:"hid",present:"hide",future:"will hide",pp:"hidden"},
+melt:{past:"melted",present:"melt",future:"will melt",pp:"melted / molten"},
+ride:{past:"rode",present:"ride",future:"will ride",pp:"ridden"},
+rise:{past:"rose",present:"rise",future:"will rise",pp:"risen"},
+send:{past:"sent",present:"send",future:"will send",pp:"sent"},
+shake:{past:"shook",present:"shake",future:"will shake",pp:"shaken"},
+sink:{past:"sank",present:"sink",future:"will sink",pp:"sunk"},
+swim:{past:"swam",present:"swim",future:"will swim",pp:"swum"},
+cost:{past:"cost",present:"cost",future:"will cost",pp:"cost"},
+cut:{past:"cut",present:"cut",future:"will cut",pp:"cut"},
+hit:{past:"hit",present:"hit",future:"will hit",pp:"hit"},
+hurt:{past:"hurt",present:"hurt",future:"will hurt",pp:"hurt"},
+let:{past:"let",present:"let",future:"will let",pp:"let"},
+put:{past:"put",present:"put",future:"will put",pp:"put"},
+set:{past:"set",present:"set",future:"will set",pp:"set"},
+shut:{past:"shut",present:"shut",future:"will shut",pp:"shut"},
+bring:{past:"brought",present:"bring",future:"will bring",pp:"brought"},
+buy:{past:"bought",present:"buy",future:"will buy",pp:"bought"},
+catch:{past:"caught",present:"catch",future:"will catch",pp:"caught"},
+feel:{past:"felt",present:"feel",future:"will feel",pp:"felt"},
+fight:{past:"fought",present:"fight",future:"will fight",pp:"fought"},
+find:{past:"found",present:"find",future:"will find",pp:"found"},
+get:{past:"got",present:"get",future:"will get",pp:"got / gotten"},
+hear:{past:"heard",present:"hear",future:"will hear",pp:"heard"},
+hold:{past:"held",present:"hold",future:"will hold",pp:"held"},
+keep:{past:"kept",present:"keep",future:"will keep",pp:"kept"},
+leave:{past:"left",present:"leave",future:"will leave",pp:"left"},
+lend:{past:"lent",present:"lend",future:"will lend",pp:"lent"},
+lose:{past:"lost",present:"lose",future:"will lose",pp:"lost"},
+pay:{past:"paid",present:"pay",future:"will pay",pp:"paid"},
+say:{past:"said",present:"say",future:"will say",pp:"said"},
+sell:{past:"sold",present:"sell",future:"will sell",pp:"sold"},
+sit:{past:"sat",present:"sit",future:"will sit",pp:"sat"},
+sleep:{past:"slept",present:"sleep",future:"will sleep",pp:"slept"},
+spend:{past:"spent",present:"spend",future:"will spend",pp:"spent"},
+stand:{past:"stood",present:"stand",future:"will stand",pp:"stood"},
+teach:{past:"taught",present:"teach",future:"will teach",pp:"taught"},
+tell:{past:"told",present:"tell",future:"will tell",pp:"told"},
+think:{past:"thought",present:"think",future:"will think",pp:"thought"},
+win:{past:"won",present:"win",future:"will win",pp:"won"},
+begin:{past:"began",present:"begin",future:"will begin",pp:"begun"},
+break:{past:"broke",present:"break",future:"will break",pp:"broken"},
+choose:{past:"chose",present:"choose",future:"will choose",pp:"chosen"},
+fall:{past:"fell",present:"fall",future:"will fall",pp:"fallen"},
+forget:{past:"forgot",present:"forget",future:"will forget",pp:"forgotten"},
+freeze:{past:"froze",present:"freeze",future:"will freeze",pp:"frozen"},
+give:{past:"gave",present:"give",future:"will give",pp:"given"},
+grow:{past:"grew",present:"grow",future:"will grow",pp:"grown"},
+know:{past:"knew",present:"know",future:"will know",pp:"known"},
+lie:{past:"lay",present:"lie",future:"will lie",pp:"lain"},
+speak:{past:"spoke",present:"speak",future:"will speak",pp:"spoken"},
+steal:{past:"stole",present:"steal",future:"will steal",pp:"stolen"},
+throw:{past:"threw",present:"throw",future:"will throw",pp:"thrown"},
+wake:{past:"woke",present:"wake",future:"will wake",pp:"woken"},
+wear:{past:"wore",present:"wear",future:"will wear",pp:"worn"}
+};
+
+
+async function generate() {
+    const verb = document.getElementById("verbInput").value.trim().toLowerCase();
+    if (!verb) return;
+
+    let data = irregular[verb];
+    let isIrregular = !!data;
+
+    // Regular fallback
+    if (!data) {
+        let past;
+        if (verb.endsWith("y") && !/[aeiou]y$/.test(verb)) past = verb.slice(0,-1)+"ied";
+        else if (verb.endsWith("e")) past = verb+"d";
+        else past = verb+"ed";
+        data = {present: verb, past, future: "will "+verb, pp: past};
+    }
+
+    // Pronunciation audio (fails silently if not found)
+    let audio = "";
+    try {
+        const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${verb}`);
+        if (res.ok) {
+            const json = await res.json();
+            json[0].phonetics.forEach(p => { if (p.audio && !audio) audio = p.audio; });
+        }
+    } catch {}
+
+    // Render UI
+    document.getElementById("output").innerHTML = `
+    <div class="result">
+        <div id="pdfContent">
+            <h2>${verb}</h2>
+            ${audio ? `<audio controls src="${audio}"></audio>` : ""}
+            <div class="tense-table">
+                <div class="column present"><div class="label">Present</div>${data.present}</div>
+                <div class="column past"><div class="label">Past</div>${data.past}</div>
+                <div class="column future"><div class="label">Future</div>${data.future}</div>
+                <div class="column participle"><div class="label">Past Participle</div>${data.pp}</div>
+            </div>
+            <div class="badge ${isIrregular?"irregular":"regular"}">
+                ${isIrregular?"Irregular Verb":"Regular Verb"}
+            </div>
+        </div>
+
+        <div class="actions">
+            <button onclick="downloadPDF()">Download PDF</button>
+        </div>
+    </div>`;
+}
+
+function downloadPDF() {
+    const element = document.getElementById("pdfContent"); // only content
+    html2pdf().set({
+        margin:0.5,
+        filename:'tense-note.pdf',
+        image:{type:'jpeg',quality:1},
+        html2canvas:{scale:2},
+        jsPDF:{unit:'in',format:'a4',orientation:'portrait'}
+    }).from(element).save();
+}
+
+document.getElementById("verbInput").addEventListener("keydown", e=>{
+    if(e.key==="Enter") generate();
+});
+</script>
+
+</body>
+</html>
